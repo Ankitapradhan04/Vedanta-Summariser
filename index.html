@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vedanta Summarizer — Sanskrit Manuscript Decoder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Sans+Devanagari:wght@300;400;500&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="mandala-bg"></div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="logo-mark">ॐ</div>
+            <div class="header-text">
+                <h1 class="site-title">Vedanta Summarizer</h1>
+                <p class="site-tagline">Illuminating Ancient Wisdom Through Modern Intelligence</p>
+            </div>
+            <div class="logo-mark">॥</div>
+        </div>
+        <div class="header-border"></div>
+    </header>
+
+    <main class="container">
+
+        <!-- Intro -->
+        <section class="intro-section">
+            <p class="intro-quote">"तत् त्वम् असि" — Tat Tvam Asi — Thou Art That</p>
+            <p class="intro-desc">Upload an image of a Sanskrit manuscript to extract, transliterate, translate, and summarize ancient Vedantic wisdom.</p>
+        </section>
+
+        <!-- Upload Section -->
+        <section class="upload-section card">
+            <div class="card-header">
+                <span class="step-num">I</span>
+                <h2>Upload Manuscript</h2>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageInput" accept="image/*" hidden>
+                <div class="upload-icon">📜</div>
+                <p class="upload-label">Drop your manuscript image here</p>
+                <p class="upload-sub">or <button class="link-btn" onclick="document.getElementById('imageInput').click()">browse to upload</button></p>
+                <p class="upload-formats">PNG, JPG, JPEG, TIFF, WEBP — up to 16MB</p>
+            </div>
+
+            <!-- Image Preview -->
+            <div class="preview-container" id="previewContainer" style="display:none">
+                <img id="imagePreview" class="image-preview" alt="Manuscript preview">
+                <div class="preview-info">
+                    <span id="fileName" class="file-name"></span>
+                    <button class="remove-btn" onclick="removeImage()">✕ Remove</button>
+                </div>
+            </div>
+
+            <!-- Optional HuggingFace Token -->
+            <div class="api-key-section">
+                <details>
+                    <summary class="api-summary">🤗 Optional: HuggingFace Token (for better translation & AI summary)</summary>
+                    <div class="api-key-body">
+                        <p class="api-note">
+                            <strong>Without a token:</strong> Uses Tesseract OCR + MyMemory translation (fully free, no signup).<br>
+                            <strong>With a free HuggingFace token:</strong> Adds Helsinki-NLP Sanskrit→English model &amp; BART summarizer.<br>
+                            Get a free token at <a href="https://huggingface.co/settings/tokens" target="_blank" style="color:var(--saffron)">huggingface.co/settings/tokens</a> — no credit card needed.
+                        </p>
+                        <input type="password" id="hfToken" placeholder="hf_..." class="api-input">
+                        <p class="api-hint">Your token is only used for this request and is never stored on the server.</p>
+                    </div>
+                </details>
+            </div>
+
+            <button class="process-btn" id="processBtn" onclick="processManuscript()" disabled>
+                <span class="btn-icon">⟁</span>
+                Decode Manuscript
+            </button>
+        </section>
+
+        <!-- Processing Indicator -->
+        <div class="processing-overlay" id="processingOverlay" style="display:none">
+            <div class="processing-card">
+                <div class="lotus-spinner">
+                    <div class="petal p1"></div>
+                    <div class="petal p2"></div>
+                    <div class="petal p3"></div>
+                    <div class="petal p4"></div>
+                    <div class="petal p5"></div>
+                    <div class="petal p6"></div>
+                    <div class="center-dot"></div>
+                </div>
+                <p class="processing-text" id="processingText">Scanning manuscript...</p>
+                <div class="processing-steps">
+                    <div class="proc-step" id="step1">📜 Extracting Sanskrit text</div>
+                    <div class="proc-step" id="step2">🔤 Processing Devanagari script</div>
+                    <div class="proc-step" id="step3">🌐 Translating to English</div>
+                    <div class="proc-step" id="step4">✨ Generating Vedantic summary</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection" style="display:none">
+
+            <!-- Sanskrit Text -->
+            <div class="result-card card" id="sanskritCard">
+                <div class="card-header">
+                    <span class="step-num">II</span>
+                    <h2>Extracted Sanskrit Text</h2>
+                    <span class="method-badge" id="ocrMethod"></span>
+                </div>
+                <div class="sanskrit-text-container">
+                    <p class="devanagari-text" id="sanskritText"></p>
+                </div>
+                <button class="copy-btn" onclick="copyText('sanskritText')">⧉ Copy</button>
+            </div>
+
+            <!-- English Translation -->
+            <div class="result-card card" id="translationCard">
+                <div class="card-header">
+                    <span class="step-num">III</span>
+                    <h2>English Translation</h2>
+                    <span class="method-badge" id="transMethod"></span>
+                </div>
+                <div class="translation-container">
+                    <p class="english-text" id="englishText"></p>
+                </div>
+                <button class="copy-btn" onclick="copyText('englishText')">⧉ Copy</button>
+            </div>
+
+            <!-- Summary -->
+            <div class="result-card card summary-card" id="summaryCard">
+                <div class="card-header">
+                    <span class="step-num">IV</span>
+                    <h2>Vedantic Summary</h2>
+                    <span class="method-badge" id="sumMethod"></span>
+                </div>
+                <div class="summary-container">
+                    <div class="summary-text" id="summaryText"></div>
+                </div>
+                <div class="summary-actions">
+                    <button class="copy-btn" onclick="copyText('summaryText')">⧉ Copy Summary</button>
+                    <button class="export-btn" onclick="exportReport()">⬇ Export Full Report</button>
+                </div>
+            </div>
+
+            <!-- Errors if any -->
+            <div class="error-card card" id="errorCard" style="display:none">
+                <div class="card-header">
+                    <span class="step-num">⚠</span>
+                    <h2>Notices</h2>
+                </div>
+                <ul class="error-list" id="errorList"></ul>
+            </div>
+
+            <!-- Process Another -->
+            <div class="reset-section">
+                <button class="reset-btn" onclick="resetApp()">↺ Process Another Manuscript</button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-divider">
+            <span>— ॐ —</span>
+        </div>
+        <p class="footer-text">Vedanta Summarizer • Powered by Tesseract OCR, MyMemory API & Claude AI</p>
+        <p class="footer-sub">Built for the preservation and understanding of ancient Vedic wisdom</p>
+    </footer>
+
+    <div id="toast" class="toast" style="display:none"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
