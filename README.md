@@ -37,3 +37,11 @@ vedanta_summarizer/
 ```
 
 ---
+
+<img width="705" height="387" alt="image" src="https://github.com/user-attachments/assets/6beb1f94-624a-4ae2-858d-fcc11839205c" />
+
+<img width="712" height="542" alt="image" src="https://github.com/user-attachments/assets/23e4ff3b-4d80-4070-b41d-9fe7d6ae21a3" />
+
+<img width="703" height="435" alt="Screenshot 2026-05-22 at 1 09 24 PM" src="https://github.com/user-attachments/assets/6f931cf5-7c2a-4daf-8a2b-158fc6cf16f3" />
+
+<img width="709" height="571" alt="Screenshot 2026-05-22 at 1 09 45 PM" src="https://github.com/user-attachments/assets/20342cff-c81e-4b63-b78c-72b78c0529c7" />
